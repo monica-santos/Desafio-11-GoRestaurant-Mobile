@@ -7,7 +7,6 @@ import Logo from '../../assets/logo-header.png';
 import SearchInput from '../../components/SearchInput';
 
 import api from '../../services/api';
-import formatValue from '../../utils/formatValue';
 
 import {
   Container,
@@ -50,16 +49,24 @@ const Dashboard: React.FC = () => {
     number | undefined
   >();
   const [searchValue, setSearchValue] = useState('');
+  const { navigate } = useNavigation();
 
   const navigation = useNavigation();
 
   async function handleNavigate(id: number): Promise<void> {
-    // Navigate do ProductDetails page
+    navigate('FoodDetails', { id });
   }
 
   useEffect(() => {
     async function loadFoods(): Promise<void> {
-      // Load Foods from API
+      const { data } = await api.get('/foods', {
+        params: {
+          category_like: selectedCategory,
+          name_like: searchValue,
+        },
+      });
+
+      setFoods(data);
     }
 
     loadFoods();
@@ -67,14 +74,16 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadCategories(): Promise<void> {
-      // Load categories from API
+      const { data } = await api.get('/categories');
+
+      setCategories(data);
     }
 
     loadCategories();
   }, []);
 
   function handleSelectCategory(id: number): void {
-    // Select / deselect category
+    setSelectedCategory(selectedCategory === id ? undefined : id);
   }
 
   return (
